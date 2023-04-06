@@ -1,7 +1,7 @@
 ## Simple Summary
 
 Presently, drand randomness can be retrieved on the FVM via the `prevrandao` opcode. A limitation of this is that users and miners know this randomness in advance of the next block being mined, allowing users to submit or not submit transactions, and miners to include or not include transactions, based on precomputation of future actor state.
-This FRC proposes an FVM function for retrieving the randomness for the current block to eliminate the drawbacks of pre-knowledge of the randomness in FVM actors.
+This FRC proposes an FVM function for retrieving the randomness for the current block to ease the drawbacks of pre-knowledge of the randomness in FVM actors.
 
 ## Abstract
 
@@ -9,14 +9,21 @@ Randomness is important on the FVM for a variety of uses cases such as lotteries
 The randomness included in the Filecoin block headers comes from [drand](https://drand.love), a threshold network providing public, verifiable, unbiasable and unpredictable random numbers at a rate (presently) consistent with Filecoin block creation, i.e. every 30 seconds. 
 When applying transactions to a tipset to mine a block, miners pull the latest drand round from the drand network, verify it, and include it in the block header. Additionally, they use this randomness as an input to WinningPoSt and their election proof generation to show that they are eligible to mine the block in question.
 
-At present, authors of actors on the FVM can only retrieve randomness from prior blocks using the `prevrandao` opcode. Due to blocks by their nature being public, this randomess is available to everybody following the Filecoin blockchain (henceforth 'viewers') 30 seconds ahead of time (i.e. the time period between blocks), enabling viewers of the network to precompute future contract state before the next block has been mined. 
+At present, authors of actors on the FVM can only retrieve randomness from prior blocks using the `prevrandao` opcode. Due to blocks by their nature being public, this randomess is available to everybody following the Filecoin blockchain (henceforth 'viewers') 60 seconds ahead of time, enabling viewers of the network to precompute future contract state before the next block has been mined. 
+
+From starting time `t`, we can see that 2 blocks pass before drand randomness becomes available:
+| t                               | t + 30s                         | t + 60s                                   |
+|---------------------------------|---------------------------------|-------------------------------------------|
+| randomness `r` emitted by drand | block mined with `r` in header  | prevrandao returns `r` during execution   |
+
 For applications such as lotteries, viewers could probabilistically (or definitively) precompute the outcome or win conditions of a such a smart contract, and submit high priority transactions to achieve favourable outcomes.
 Additionally, malicious miners could choose to include or not include transactions in the next block if they gain some benefit from doing so (commonly referred to as [MEV](https://coinmarketcap.com/alexandria/glossary/miner-extractable-value-mev)).
 
-All current implementations of Filecoin surveyed retrieve randomness before mining the next block (and thus executing updates to FVM actors), and to that end we propose a new built-in function that provides actors with the randomness from the block currently being mined. 
+While not explicitly in the spec, All current implementations of Filecoin surveyed retrieve randomness before execution of updates to FVM actors, and to that end we propose a new built-in function that provides actors with the randomness from the block currently being mined. 
 
 ## Change Motivation
 
+Enabling actors to use randomness from the block currently being mined reduces the lead time that viewers and miners have to act upon the randomness value. While viewers following both the drand and Filecoin networks would still have access to the randomness 30s ahead of time, the overall advantage would be halved and the window to submit transactions and have them included in the block would be small, leading to a fairer and more available randomness without having to take countermeasures such as closing draws multiple rounds in advance of execution.
 
 ## Specification
 
@@ -47,7 +54,7 @@ There are no backwards compatibility considerations, as this feature has not bee
 ## Test Cases
 
 Test cases require validation of BLS12-381 signatures, which are already a primitive within the Filecoin ecosystem. 
-Tests for compatibility of randomness before block height 50`000 must also be validated against the drand devnet public key, as a switch was made between networks at this time; these already exist in compliant implementations for validating old tipsets, but should be extended to cover fetching and validating randomness on the FVM.
+Tests for compatibility of randomness before block height 51`000 must also be validated against the drand devnet public key, as a switch was made between networks at this time; these already exist in compliant implementations for validating old tipsets, but should be extended to cover fetching and validating randomness on the FVM.
 
 ## Security Considerations
 
