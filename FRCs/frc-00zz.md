@@ -32,7 +32,7 @@ trait Timelock {
 ```
 
 The `encrypt` functions take raw message bytes and a round number which, along with the public key of the drand network, are passed into the function specified in [the timelock encryption paper](some-link-here) released by the team. In short, the round number is hashed to a point on the G2 extension field of the BLS12-381 curve. That point is multiplied by a new point derived from the message and mapped onto a target group on the Gt extension field, and the message is xor'd with the resulting point on the Gt extension field.
-For larger messages originating outside the system, we recommend using a symmetric cipher such as [AGE](some-link-here) to encrypt the message, and performing timelock encryption on just the symmetric key, in order to save gas fees, as the pairing operation is comparatively expensive.
+For larger messages originating outside the system, we recommend using a symmetric cipher such as [age](https://age-encryption.org/) to encrypt the message, and performing timelock encryption on just the symmetric key, in order to save gas fees, as the pairing operation is comparatively expensive.
 
 ## Test Cases
 
