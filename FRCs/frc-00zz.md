@@ -33,6 +33,7 @@ trait Timelock {
 
 The `encrypt` functions take raw message bytes and a round number which, along with the public key of the drand network, are passed into the function specified in [the timelock encryption paper](https://eprint.iacr.org/2023/189.pdf) released by the team. In short, the round number is hashed to a point on the G2 group of the BLS12-381 curve. That point is multiplied by a new point derived from the message and mapped onto the target group Gt, and the message is xor'd with the resulting point on Gt.
 For larger messages originating outside the system, we recommend using a symmetric cipher such as [age](https://age-encryption.org/) to encrypt the message, and performing timelock encryption on just the symmetric key, in order to save gas fees, as the pairing operation is comparatively expensive.
+The above interfaces assume that details such as the drand network chain hash and public key are transparent for the user - should the Filecoin network switch to an alternative drand network in future, users may need to interact with different actor addresses to timelock encrypt/decrypt for the respective drand network. We assume this is in line with standard practice.
 
 ## Test Cases
 
