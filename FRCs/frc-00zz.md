@@ -4,7 +4,7 @@ As the Filecoin network already supports BLS12-381, it could trivially implement
 
 
 ## Abstract
-On 2023-03-01, drand launched the first practical Timelock encryption scheme to mainnet after undergoing a security audit and developing libraries and tooling to make it easier.
+On 2023-03-01, drand launched the first practical Timelock encryption scheme to drand mainnet after undergoing a security audit and developing libraries and tooling to make it easier.
 Timelock encryption would enable users to do sealed-bid auctions, create more secure implementations of [RANDAO](some-link-here), schedule social media network messages, prevent [MEV](some-link-here), and much, much more!
 The drand timelock scheme uses [identity based encryption](some-link-here) which exploits the pairing capabilities of BLS12-381 to use a future round number as a public key to encrypt messages which will be decryptable only once that future round has been emitted by the drand network by using the round signature as a private key.
 
