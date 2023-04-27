@@ -19,19 +19,19 @@ The following interfaces should be fulfilled in FEVM and native actors respectiv
 
 ```solidity
 interface Timelock {
-    function encrypt(bytes message, uint64 roundNumber) returns (bytes)
+    function encrypt(bytes message, uint64 blockNumber) returns (bytes)
     function decrypt(bytes message) returns (bytes, bool)
 }
 ```
 
 ```rust
 trait Timelock {
-    fn encrypt(message: Vec<u8>, roundNumber: u64) -> Result<Vec<u8>>
+    fn encrypt(message: Vec<u8>, blockNumber: u64) -> Result<Vec<u8>>
     fn decrypt(message: Vec<u8>) -> Result<Vec<u8>>
 }
 ```
 
-The `encrypt` functions take raw message bytes and a round number which, along with the public key of the drand network, are passed into the function specified in [the timelock encryption paper](https://eprint.iacr.org/2023/189.pdf) released by the team. In short, the round number is hashed to a point on the G2 group of the BLS12-381 curve. That point is multiplied by a new point derived from the message and mapped onto the target group Gt, and the message is xor'd with the resulting point on Gt.
+The `encrypt` functions take raw message bytes and a block number which, along with the public key of the drand network, are passed into the function specified in [the timelock encryption paper](https://eprint.iacr.org/2023/189.pdf) released by the team. In short, the block number is hashed to a point on the G2 group of the BLS12-381 curve. That point is multiplied by a new point derived from the message and mapped onto the target group Gt, and the message is xor'd with the resulting point on Gt.
 For larger messages originating outside the system, we recommend using a symmetric cipher such as [age](https://age-encryption.org/) to encrypt the message off-chain, and performing timelock encryption on just the symmetric key on-chain, in order to save gas fees, as the pairing operation is expensive.
 The above interfaces assume that details such as the drand network chain hash and public key are transparent for the user - should the Filecoin network switch to an alternative drand network in future, users may need to interact with different actor addresses to timelock encrypt/decrypt for the respective drand network. We assume this is in line with standard practice.
 
