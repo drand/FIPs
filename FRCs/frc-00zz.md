@@ -19,29 +19,31 @@ The following interfaces should be fulfilled in FEVM and native actors respectiv
 
 ```solidity
 interface Timelock {
-    function encrypt(bytes message, uint64 blockNumber) returns (bytes)
     function decrypt(bytes message) returns (bytes, bool)
 }
 ```
 
 ```rust
 trait Timelock {
-    fn encrypt(message: Vec<u8>, blockNumber: u64) -> Result<Vec<u8>>
     fn decrypt(message: Vec<u8>) -> Result<Vec<u8>>
 }
 ```
 
-The `encrypt` functions take raw message bytes and a block number which, along with the public key of the drand network, are passed into the function specified in [the timelock encryption paper](https://eprint.iacr.org/2023/189.pdf) released by the team. In short, the block number is hashed to a point on the G2 group of the BLS12-381 curve. That point is multiplied by a new point derived from the message and mapped onto the target group Gt, and the message is xor'd with the resulting point on Gt.
-For larger messages originating outside the system, we recommend using a symmetric encryption such as [age](https://age-encryption.org/) to encrypt the message off-chain, and performing timelock encryption on just the symmetric key on-chain, in order to save gas fees, as the pairing operation is expensive.
+The interfaces only contain a decrypt method, as due to the public nature of blockchains and the pool of transactions submitted to them, it does not make sense to ask the network to encrypt a plaintext on your behalf as everybody in the network would be able to see the plaintext. For encryption, we suggest users follow the methods specified in [the timelock encryption paper](https://eprint.iacr.org/2023/189.pdf) released by the team (and others), or use one of the supported libraries. 
+In short, users can take raw message bytes and encrypt them using the drand block number corresponding to the decryption time as a public key. The block number is hashed to a point on the G2 group of the BLS12-381 curve. That point is multiplied by a new point derived from the message and mapped onto the target group Gt, and the message is xor'd with the resulting point on Gt. 
+For messages larger than 128bits, we recommend using symmetric encryption such as [AGE](https://age-encryption.org/) to encrypt the message, and performing timelock encryption on just the symmetric key as the pairing operation is expensive and decryption would cost a large amount of gas on-chain.
 The above interfaces assume that details such as the drand network chain hash and public key are transparent for the user - should the Filecoin network switch to an alternative drand network in future, users may need to interact with different actor addresses to timelock encrypt/decrypt for the respective drand network. We assume this is in line with standard practice.
+
+To decrypt a message, a storage provider takes the drand randomness for the given round (our AGE-powered libraries bundle this round number in the ciphertext itself), and uses it as a private key to decrypt the ciphertext as per [the timelock encryption paper](https://eprint.iacr.org/2023/189.pdf).
+Whether users store ciphertext to round number tuples or the network supports ciphertexts in the AGE/[armor](https://datatracker.ietf.org/doc/html/rfc4880#section-6.2) format transparently is a matter for community debate.
+
+Users can store timelock encrypted payloads in smart contracts using either the `Vec<u8>` or `&[u8]` types in rust, or a `bytes` type in Solidity.
 
 ## Test Cases
 
-- plaintexts encrypted by the network should be decryptable once the relevant time has been reached
-- ciphertexts generated outside the network should be decryptable once the relevant time has been reached
-- plaintexts encrypted by the network should not be decryptable before the relevant time has been reached
-- ciphertexts should be compatible with the existing implementations [tlock](https://github.com/drand/tlock) and [tlock-js](https://github.com/drand/tlock-js)
-- encryption using the points at 0 and infinity should be disallowed
+- ciphertexts should be decryptable once the relevant time has been reached
+- ciphertexts should not be decryptable before the relevant time has been reached
+- decryption should be compatible with the existing implementations [tlock](https://github.com/drand/tlock) and [tlock-js](https://github.com/drand/tlock-js)
 - users cannot encrypt to a time before introduction of the new scheme (i.e. when [FIP-0063](https://github.com/filecoin-project/FIPs/pull/652)) was accepted and deployed to the Filecoin network), as the signatures before this time will not conform with the scheme for timelock encryption.
 
 ## Backwards compatibility
@@ -50,8 +52,7 @@ There are no backwards compatibility considerations, as this feature has not bee
 
 ## Security considerations
 
-Are there implications for the miners seeing data before they timelock encrypt it?
-How do we manage hybrid encryption to ensure users don't do it wrong?
+As we recommend using hybrid encryption with timelock, users unfamiliar with cryptographic best practices may choose to use weak or poorly implemented schemes to encrypt their data. We suggest using battle-tested [AEAD](https://en.wikipedia.org/wiki/Authenticated_encryption) schemes such as [AES-GCM](https://www.rfc-editor.org/rfc/rfc7714) or [ChaCha20Poly1305](https://www.rfc-editor.org/rfc/rfc7539) and that symmetric keys are chosen using [secure, private random number generators](https://datatracker.ietf.org/doc/html/rfc4086#section-7.2.2). Additionally, users should be careful to avoid [nonce reuse](https://cwe.mitre.org/data/definitions/323.html) in schemes that are vulnerable to it, and prefer schemes that are resistant to nonce reuse (e.g. [AES-GCM-SIV](https://en.wikipedia.org/wiki/AES-GCM-SIV)) to limit user error.
 
 ## Incentive considerations
 
