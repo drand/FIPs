@@ -31,11 +31,11 @@ trait Timelock {
 
 The interfaces only contain a decrypt method, as due to the public nature of blockchains and the pool of transactions submitted to them, it does not make sense to ask the network to encrypt a plaintext on your behalf as everybody in the network would be able to see the plaintext. For encryption, we suggest users follow the methods specified in [the timelock encryption paper](https://eprint.iacr.org/2023/189.pdf) released by the team (and others), or use one of the supported libraries. 
 In short, users can take raw message bytes and encrypt them using the drand block number corresponding to the decryption time as a public key. The block number is hashed to a point on the G2 group of the BLS12-381 curve. That point is multiplied by a new point derived from the message and mapped onto the target group Gt, and the message is xor'd with the resulting point on Gt. 
-For messages larger than 128bits, we recommend using symmetric encryption such as [AGE](https://age-encryption.org/) to encrypt the message, and performing timelock encryption on just the symmetric key as the pairing operation is expensive and decryption would cost a large amount of gas on-chain.
+For messages larger than 128bits, we recommend using symmetric encryption such as [age](https://age-encryption.org/) to encrypt the message, and performing timelock encryption on just the symmetric key as the pairing operation is expensive and decryption would cost a large amount of gas on-chain.
 The above interfaces assume that details such as the drand network chain hash and public key are transparent for the user - should the Filecoin network switch to an alternative drand network in future, users may need to interact with different actor addresses to timelock encrypt/decrypt for the respective drand network. We assume this is in line with standard practice.
 
-To decrypt a message, a storage provider takes the drand randomness for the given round (our AGE-powered libraries bundle this round number in the ciphertext itself), and uses it as a private key to decrypt the ciphertext as per [the timelock encryption paper](https://eprint.iacr.org/2023/189.pdf).
-Whether users store ciphertext to round number tuples or the network supports ciphertexts in the AGE/[armor](https://datatracker.ietf.org/doc/html/rfc4880#section-6.2) format transparently is a matter for community debate.
+To decrypt a message, a storage provider takes the drand randomness for the given round (our age-powered libraries bundle this round number in the ciphertext itself), and uses it as a private key to decrypt the ciphertext as per [the timelock encryption paper](https://eprint.iacr.org/2023/189.pdf).
+Whether users store ciphertext to round number tuples or the network supports ciphertexts in the age/[armor](https://datatracker.ietf.org/doc/html/rfc4880#section-6.2) format transparently is a matter for community debate.
 
 Users can store timelock encrypted payloads in smart contracts using either the `Vec<u8>` or `&[u8]` types in rust, or a `bytes` type in Solidity.
 
@@ -67,7 +67,7 @@ To that end, FVM could be the first blockchain ecosystem providing timelock encr
 
 ## Implementation
 
-There are already multiple implementations of our timelock encryption scheme which combines timelock encryption of a key used to perform [AGE](https://github.com/FiloSottile/age) symmetric encryption. Most relevant to FVM (at this time), Thibault Meunier from Cloudflare has a [rust implementation](https://github.com/thibmeu/tlock-rs) based on an MVP developed by [Timofey](https://github.com/timoftime/tlock-rs) from Chainsafe. It is complete and functional, and has been developed in consultation with the drand team. Unlike the team's [typescript](https://github.com/drand/tlock-js) and [go](https://github.com/drand/tlock) implementations however, it has not been formally security audited.
+There are already multiple implementations of our timelock encryption scheme which combines timelock encryption of a key used to perform [age](https://github.com/FiloSottile/age) symmetric encryption. Most relevant to FVM (at this time), Thibault Meunier from Cloudflare has a [rust implementation](https://github.com/thibmeu/tlock-rs) based on an MVP developed by [Timofey](https://github.com/timoftime/tlock-rs) from Chainsafe. It is complete and functional, and has been developed in consultation with the drand team. Unlike the team's [typescript](https://github.com/drand/tlock-js) and [go](https://github.com/drand/tlock) implementations however, it has not been formally security audited.
 
 ## Copyright
 
