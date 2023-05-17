@@ -1,6 +1,6 @@
 ## Simple Summary
 Timelock encryption is a method of encrypting a message now that can't be decrypted until a specific point in the future has passed. The drand team have launched a scheme that uses BLS12-381 signatures in an innovative way using [identity based encryption](https://crypto.stanford.edu/~dabo/papers/bfibe.pdf) to achieve practical Timelock encryption using the drand network.
-As the Filecoin network already supports BLS12-381, it could trivially implement built-in FVM actors for enabling timelock encryption (providing the [FIP for switching to the new drand network](https://github.com/filecoin-project/FIPs/pull/652) is accepted).
+As the Filecoin network already supports BLS12-381, it could trivially implement built-in FVM actors for enabling timelock encryption (providing the [FIP for switching to the new drand network](../FIPS/fip-0063.md) is accepted).
 
 
 ## Abstract
@@ -44,7 +44,7 @@ Users can store timelock encrypted payloads in smart contracts using either the 
 - ciphertexts should be decryptable once the relevant time has been reached
 - ciphertexts should not be decryptable before the relevant time has been reached
 - decryption should be compatible with the existing implementations [tlock](https://github.com/drand/tlock) and [tlock-js](https://github.com/drand/tlock-js)
-- users cannot encrypt to a time before introduction of the new scheme (i.e. when [FIP-0063](https://github.com/filecoin-project/FIPs/pull/652)) was accepted and deployed to the Filecoin network), as the signatures before this time will not conform with the scheme for timelock encryption.
+- users cannot encrypt to a time before introduction of the new scheme (i.e. when [FIP-0063](../FIPS/fip-0063.md)) was accepted and deployed to the Filecoin network), as the signatures before this time will not conform with the scheme for timelock encryption.
 
 ## Backwards compatibility
 
