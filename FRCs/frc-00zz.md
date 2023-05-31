@@ -6,7 +6,7 @@ As the Filecoin network already supports BLS12-381, it could implement built-in 
 ## Abstract
 On 2023-03-01, drand launched the first practical Timelock encryption scheme to drand mainnet after undergoing a security audit and developing libraries and tooling to make it easier.
 Timelock encryption would enable users to do sealed-bid auctions, create more secure implementations of [RANDAO](https://github.com/randao/randao), schedule social media network messages, prevent [MEV](https://coinmarketcap.com/alexandria/glossary/miner-extractable-value-mev), sealed NFT airdrops and much, much more!
-The drand timelock scheme uses [identity based encryption](https://crypto.stanford.edu/~dabo/papers/bfibe.pdf) which exploits the pairing capabilities of BLS12-381 to use a future round number as a public key to encrypt messages which will be decryptable only once that future round has been emitted by the drand network by using the round signature as a private key.
+The drand [timelock scheme](https://eprint.iacr.org/2023/189) uses [identity based encryption](https://crypto.stanford.edu/~dabo/papers/bfibe.pdf) which exploits the pairing capabilities of BLS12-381 to use a future round number as a public key to encrypt messages which will be decryptable only once that future round has been emitted by the drand network by using the round signature as a private key.
 
 We propose a precompile for FVM that would enable users to timelock encrypt arbitrary data and attempt decryption of previously timelock encrypted data. This would enable users to timelock encrypt some part of the data inside their smart contract, while also enabling users to pass ciphertexts directly into smart contracts for decryption there at a later time. 
 
