@@ -1,6 +1,6 @@
 ## Simple Summary
 Timelock encryption is a method of encrypting a message now that can't be decrypted until a specific point in the future has passed. The drand team have launched a scheme that uses BLS12-381 signatures in an innovative way using [identity based encryption](https://crypto.stanford.edu/~dabo/papers/bfibe.pdf) to achieve practical Timelock encryption using the drand network.
-As the Filecoin network already supports BLS12-381, it could trivially implement built-in FVM actors for enabling timelock encryption (providing the [FIP for switching to the new drand network](../FIPS/fip-0063.md) is accepted).
+As the Filecoin network already supports BLS12-381, it could implement built-in FVM actors for enabling timelock encryption (providing the [FIP for switching to the new drand network](../FIPS/fip-0063.md) is accepted).
 
 
 ## Abstract
